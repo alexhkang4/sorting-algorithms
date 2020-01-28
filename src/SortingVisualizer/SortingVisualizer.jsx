@@ -22,20 +22,15 @@ export default class SortingVisualizer extends React.Component {
     }
 
     bubbleSort () {
-        var n = this.state.array.length;
-        var thisArray = this.state.array;
-        var component = this;
+        let n = this.state.array.length;
+        let thisArray = this.state.array;
+        let component = this;
         async function load () {
             for(let i = 0; i < n; i++) {
                 for(let j = 1; j < n; j++) {
-                    const arrayBars = document.getElementsByClassName('array-bar');
-                    for (let k = 0; k < arrayBars.length;k++) {
-                        arrayBars[k].style.backgroundColor = "gray"
-                    }
+                    setGray();
                     if(thisArray[j - 1] > thisArray[j]) {
                         swap(thisArray, j - 1, j);
-                        arrayBars[j].style.backgroundColor = "red"
-                        arrayBars[j - 1].style.backgroundColor = 'red';
                     }
                     component.setState(thisArray);
                     await timer(0);
@@ -43,6 +38,26 @@ export default class SortingVisualizer extends React.Component {
             }
         }
         load();
+    }
+
+    insertionSort () {
+        
+    }
+
+    quickSort() {
+        let thisArray = this.state.array;
+        let n = thisArray.length;
+        let component = this;
+        async function load (low, high) {
+           if (low < high) {
+               let index = partition(thisArray, low, high);
+               component.setState(thisArray);
+               await timer(0);
+               load(low, index - 1);
+               load(index + 1, high);
+           }
+        }
+        load(0, n - 1);
     }
 
     render() {
@@ -60,6 +75,8 @@ export default class SortingVisualizer extends React.Component {
                 ))}
                 <button onClick={() => this.resetArray()}>Randomize Array</button>
                 <button onClick={() => this.bubbleSort()}>Bubble Sort</button>
+                <button onClick={() => this.insertionSort()}>Insertion Sort</button>
+                <button onClick={() => this.quickSort()}>Quick Sort</button>
             </div>
         );
     }
@@ -70,11 +87,35 @@ function randomInt(min, max) {
 }
 
 function swap(array, i, j) {
-    var temp = array[i];
+    let temp = array[i];
     array[i] = array[j];
     array[j] = temp;
+    const arrayBars = document.getElementsByClassName('array-bar');
+    arrayBars[i].style.backgroundColor = "red"
+    arrayBars[j].style.backgroundColor = 'red';
 }
 
 function timer(ms) {
     return new Promise(res => setTimeout(res, ms));
+}
+
+function partition(array, low, high) {
+    let pivot = array[high];
+    let i = low - 1;
+    for (let j = low; j < high; j++) {
+        if (array[j] < pivot) {
+            i++
+            swap(array, array[i], array[j]);
+        }
+    }
+    setGray();
+    swap(array, array[i + 1], array[high]);
+    return i + 1;
+}
+
+function setGray() {
+    const arrayBars = document.getElementsByClassName('array-bar');
+    for (let k = 0; k < arrayBars.length;k++) {
+        arrayBars[k].style.backgroundColor = "gray"
+    }
 }
