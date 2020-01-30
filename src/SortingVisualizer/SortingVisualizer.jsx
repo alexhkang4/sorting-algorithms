@@ -33,7 +33,7 @@ export default class SortingVisualizer extends React.Component {
                         swap(thisArray, j - 1, j);
                     }
                     component.setState(thisArray);
-                    await timer(0);
+                    await timer(30);
                 }
             }
         }
@@ -49,15 +49,21 @@ export default class SortingVisualizer extends React.Component {
         let n = thisArray.length;
         let component = this;
         async function load (low, high) {
-           if (low < high) {
-               let index = partition(thisArray, low, high);
-               component.setState(thisArray);
-               await timer(0);
-               load(low, index - 1);
-               load(index + 1, high);
-           }
+            let index;
+            if (n > 1) {
+                index = partition(thisArray, low, high);
+                component.setState(thisArray);
+            }
+            
+            if (low < index - 1) {
+                load(low, index - 1);
+            }
+            if (index < high) {
+                load(index, high);
+            }
+            await timer(30);
         }
-        load(0, n - 1);
+        load(0, n - 1);   
     }
 
     render() {
@@ -100,22 +106,29 @@ function timer(ms) {
 }
 
 function partition(array, low, high) {
-    let pivot = array[high];
-    let i = low - 1;
-    for (let j = low; j < high; j++) {
-        if (array[j] < pivot) {
-            i++
-            swap(array, array[i], array[j]);
+    setGray();
+    let pivot = array[Math.floor((low + high) / 2)];
+    let i = low;
+    let j = high;
+    while (i <= j) {
+        while (array[i] < pivot) {
+            i++;
+        }
+        while (array[j] > pivot) {
+            j--;
+        }
+        if (i <= j) {
+            swap(array, i, j);
+            i++;
+            j--;
         }
     }
-    setGray();
-    swap(array, array[i + 1], array[high]);
-    return i + 1;
+    return i;
 }
 
 function setGray() {
     const arrayBars = document.getElementsByClassName('array-bar');
     for (let k = 0; k < arrayBars.length;k++) {
-        arrayBars[k].style.backgroundColor = "gray"
+        arrayBars[k].style.backgroundColor = "gray";
     }
 }
